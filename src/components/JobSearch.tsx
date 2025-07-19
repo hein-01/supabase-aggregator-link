@@ -107,12 +107,12 @@ export const JobSearch = () => {
       }
 
       // Apply location filter
-      if (selectedLocation) {
+      if (selectedLocation && selectedLocation !== 'all') {
         query = query.eq('location_id', selectedLocation);
       }
 
       // Apply category filter
-      if (selectedCategory) {
+      if (selectedCategory && selectedCategory !== 'all') {
         query = query.eq('category_id', selectedCategory);
       }
 
@@ -172,7 +172,7 @@ export const JobSearch = () => {
               <SelectValue placeholder="Select location" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All locations</SelectItem>
+              <SelectItem value="all">All locations</SelectItem>
               {locations.map((location) => (
                 <SelectItem key={location.id} value={location.id}>
                   {location.city}, {location.state || location.country}
@@ -186,7 +186,7 @@ export const JobSearch = () => {
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All categories</SelectItem>
+              <SelectItem value="all">All categories</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category.id} value={category.id}>
                   {category.name}

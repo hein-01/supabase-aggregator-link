@@ -1,16 +1,12 @@
 import { Header } from "@/components/Header";
-import { HeroSearch } from "@/components/HeroSearch";
-import { TrendingJobs } from "@/components/TrendingJobs";
-import { SalaryInsights } from "@/components/SalaryInsights";
+import { JobSearch } from "@/components/JobSearch";
 import { Footer } from "@/components/Footer";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <HeroSearch />
-      <TrendingJobs />
-      <SalaryInsights />
+      <JobSearch />
       <Footer />
     </div>
   );

@@ -14,6 +14,157 @@ export type Database = {
   }
   public: {
     Tables: {
+      companies: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      job_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      jobs: {
+        Row: {
+          category_id: string | null
+          company_id: string | null
+          created_at: string
+          description: string | null
+          employment_type: string | null
+          id: string
+          is_active: boolean
+          location_id: string | null
+          posted_date: string | null
+          salary_max: number | null
+          salary_min: number | null
+          scraped_at: string
+          source_url: string
+          source_website: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          description?: string | null
+          employment_type?: string | null
+          id?: string
+          is_active?: boolean
+          location_id?: string | null
+          posted_date?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          scraped_at?: string
+          source_url: string
+          source_website: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          description?: string | null
+          employment_type?: string | null
+          id?: string
+          is_active?: boolean
+          location_id?: string | null
+          posted_date?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          scraped_at?: string
+          source_url?: string
+          source_website?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobs_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "job_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      locations: {
+        Row: {
+          city: string
+          country: string
+          created_at: string
+          id: string
+          state: string | null
+        }
+        Insert: {
+          city: string
+          country?: string
+          created_at?: string
+          id?: string
+          state?: string | null
+        }
+        Update: {
+          city?: string
+          country?: string
+          created_at?: string
+          id?: string
+          state?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

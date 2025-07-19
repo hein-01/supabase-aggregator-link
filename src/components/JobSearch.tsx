@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, MapPin, Briefcase, ExternalLink } from 'lucide-react';
+import { Search, MapPin, Briefcase, ExternalLink, RefreshCw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -48,6 +48,7 @@ export const JobSearch = () => {
   const [locations, setLocations] = useState<Location[]>([]);
   const [categories, setCategories] = useState<JobCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [scraping, setScraping] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -127,6 +128,29 @@ export const JobSearch = () => {
     }
   };
 
+  const triggerScraper = async () => {
+    setScraping(true);
+    try {
+      console.log('Triggering job scraper...');
+      const { data, error } = await supabase.functions.invoke('job-scraper');
+      
+      if (error) {
+        console.error('Error triggering scraper:', error);
+        alert('Error triggering scraper: ' + error.message);
+      } else {
+        console.log('Scraper response:', data);
+        alert(`Scraper completed! ${data.message}`);
+        // Refresh the job list after scraping
+        await searchJobs();
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error triggering scraper');
+    } finally {
+      setScraping(false);
+    }
+  };
+
   const formatSalary = (min: number, max: number) => {
     if (!min && !max) return 'Salary not specified';
     if (min && max) return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
@@ -196,8 +220,18 @@ export const JobSearch = () => {
           </Select>
         </div>
 
-        <div className="text-sm text-muted-foreground mb-4">
-          Found {jobs.length} jobs
+        <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+          <span>Found {jobs.length} jobs</span>
+          <Button 
+            onClick={triggerScraper}
+            disabled={scraping}
+            size="sm"
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${scraping ? 'animate-spin' : ''}`} />
+            {scraping ? 'Scraping...' : 'Refresh Jobs'}
+          </Button>
         </div>
       </div>
 

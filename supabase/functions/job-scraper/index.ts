@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,6 +21,161 @@ interface JobData {
   posted_date?: string;
 }
 
+async function scrapeJobStreet(): Promise<JobData[]> {
+  const jobs: JobData[] = [];
+  
+  try {
+    console.log('Scraping JobStreet Singapore...');
+    
+    // JobStreet search URL for recent jobs in Singapore
+    const searchUrl = 'https://sg.jobstreet.com/en/job-search/job-vacancy.php?ojs=10';
+    
+    const response = await fetch(searchUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    });
+    
+    if (!response.ok) {
+      console.error('Failed to fetch JobStreet:', response.status);
+      return jobs;
+    }
+    
+    const html = await response.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    
+    if (!doc) {
+      console.error('Failed to parse JobStreet HTML');
+      return jobs;
+    }
+    
+    // Look for job cards/listings - adjust selectors based on actual site structure
+    const jobElements = doc.querySelectorAll('[data-automation="jobListing"], .job-item, .job-card, article[data-job-id]');
+    
+    console.log(`Found ${jobElements.length} job elements on JobStreet`);
+    
+    for (let i = 0; i < Math.min(jobElements.length, 10); i++) {
+      const element = jobElements[i];
+      
+      try {
+        // Extract job details - adjust selectors based on actual HTML structure
+        const titleElement = element.querySelector('h1, h2, h3, .job-title, [data-automation="jobTitle"] a, .position-title');
+        const companyElement = element.querySelector('.company-name, [data-automation="jobCompany"], .employer-name');
+        const locationElement = element.querySelector('.location, [data-automation="jobLocation"], .job-location');
+        const descElement = element.querySelector('.job-summary, .job-description, .snippet');
+        const linkElement = element.querySelector('a[href*="/job/"], a[href*="/en/job/"]') || titleElement?.querySelector('a');
+        
+        if (!titleElement || !companyElement) continue;
+        
+        const title = titleElement.textContent?.trim() || '';
+        const company = companyElement.textContent?.trim() || '';
+        const location = locationElement?.textContent?.trim() || 'Singapore';
+        const description = descElement?.textContent?.trim() || '';
+        const relativeUrl = linkElement?.getAttribute('href') || '';
+        const fullUrl = relativeUrl.startsWith('http') ? relativeUrl : `https://sg.jobstreet.com${relativeUrl}`;
+        
+        if (title && company && fullUrl) {
+          jobs.push({
+            title,
+            description,
+            company_name: company,
+            location: location.includes('Singapore') ? 'Singapore' : location,
+            category: 'Technology', // Default category, could be enhanced with classification
+            source_url: fullUrl,
+            source_website: 'jobstreet',
+            employment_type: 'Full-time',
+            posted_date: new Date().toISOString()
+          });
+        }
+      } catch (error) {
+        console.error('Error parsing JobStreet job element:', error);
+      }
+    }
+    
+  } catch (error) {
+    console.error('Error scraping JobStreet:', error);
+  }
+  
+  return jobs;
+}
+
+async function scrapeJoiMyanmar(): Promise<JobData[]> {
+  const jobs: JobData[] = [];
+  
+  try {
+    console.log('Scraping JoiMyanmar...');
+    
+    const searchUrl = 'https://www.joimyanmar.com/job';
+    
+    const response = await fetch(searchUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    });
+    
+    if (!response.ok) {
+      console.error('Failed to fetch JoiMyanmar:', response.status);
+      return jobs;
+    }
+    
+    const html = await response.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    
+    if (!doc) {
+      console.error('Failed to parse JoiMyanmar HTML');
+      return jobs;
+    }
+    
+    // Look for job listings - adjust selectors based on actual site structure
+    const jobElements = doc.querySelectorAll('.job-item, .job-card, .job-listing, article, .position-item');
+    
+    console.log(`Found ${jobElements.length} job elements on JoiMyanmar`);
+    
+    for (let i = 0; i < Math.min(jobElements.length, 10); i++) {
+      const element = jobElements[i];
+      
+      try {
+        // Extract job details - adjust selectors based on actual HTML structure
+        const titleElement = element.querySelector('h1, h2, h3, .job-title, .position-title, .title');
+        const companyElement = element.querySelector('.company, .company-name, .employer');
+        const locationElement = element.querySelector('.location, .job-location, .address');
+        const descElement = element.querySelector('.description, .summary, .excerpt');
+        const linkElement = element.querySelector('a[href*="/job/"]') || titleElement?.querySelector('a');
+        
+        if (!titleElement || !companyElement) continue;
+        
+        const title = titleElement.textContent?.trim() || '';
+        const company = companyElement.textContent?.trim() || '';
+        const location = locationElement?.textContent?.trim() || 'Yangon';
+        const description = descElement?.textContent?.trim() || '';
+        const relativeUrl = linkElement?.getAttribute('href') || '';
+        const fullUrl = relativeUrl.startsWith('http') ? relativeUrl : `https://www.joimyanmar.com${relativeUrl}`;
+        
+        if (title && company && fullUrl) {
+          jobs.push({
+            title,
+            description,
+            company_name: company,
+            location: location.includes('Yangon') ? 'Yangon' : location,
+            category: 'Marketing', // Default category, could be enhanced with classification
+            source_url: fullUrl,
+            source_website: 'joimyanmar',
+            employment_type: 'Full-time',
+            posted_date: new Date().toISOString()
+          });
+        }
+      } catch (error) {
+        console.error('Error parsing JoiMyanmar job element:', error);
+      }
+    }
+    
+  } catch (error) {
+    console.error('Error scraping JoiMyanmar:', error);
+  }
+  
+  return jobs;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -34,55 +190,19 @@ serve(async (req) => {
 
     console.log('Starting job scraping process...');
 
-    // Mock job data for demonstration (replace with actual scraping logic)
-    const mockJobs: JobData[] = [
-      {
-        title: "Software Engineer",
-        description: "We are looking for a skilled software engineer to join our team. Experience with React, TypeScript, and Node.js required.",
-        company_name: "Tech Solutions Pte Ltd",
-        location: "Singapore",
-        category: "Technology",
-        source_url: "https://sg.jobstreet.com/job/software-engineer-123",
-        source_website: "jobstreet",
-        employment_type: "Full-time",
-        salary_min: 4000,
-        salary_max: 6000,
-        posted_date: new Date().toISOString()
-      },
-      {
-        title: "Marketing Manager",
-        description: "Join our marketing team to drive brand awareness and customer engagement. Digital marketing experience preferred.",
-        company_name: "Myanmar Marketing Co",
-        location: "Yangon",
-        category: "Marketing",
-        source_url: "https://www.joimyanmar.com/job/marketing-manager-456",
-        source_website: "joimyanmar",
-        employment_type: "Full-time",
-        salary_min: 800,
-        salary_max: 1200,
-        posted_date: new Date().toISOString()
-      },
-      {
-        title: "Data Analyst",
-        description: "Analyze business data to provide insights and recommendations. SQL and Python experience required.",
-        company_name: "Data Insights Singapore",
-        location: "Singapore",
-        category: "Technology",
-        source_url: "https://sg.jobstreet.com/job/data-analyst-789",
-        source_website: "jobstreet",
-        employment_type: "Contract",
-        salary_min: 3500,
-        salary_max: 5000,
-        posted_date: new Date().toISOString()
-      }
-    ];
+    // Scrape both websites
+    const [jobStreetJobs, joiMyanmarJobs] = await Promise.all([
+      scrapeJobStreet(),
+      scrapeJoiMyanmar()
+    ]);
 
-    console.log(`Processing ${mockJobs.length} jobs...`);
+    const allJobs = [...jobStreetJobs, ...joiMyanmarJobs];
+    console.log(`Total jobs scraped: ${allJobs.length}`);
 
     let processedJobs = 0;
     let errors = 0;
 
-    for (const jobData of mockJobs) {
+    for (const jobData of allJobs) {
       try {
         // Find or create company
         let { data: company, error: companyError } = await supabaseClient
@@ -121,12 +241,14 @@ serve(async (req) => {
         if (locationError && locationError.code === 'PGRST116') {
           // Location doesn't exist, create it
           const country = jobData.source_website === 'jobstreet' ? 'Singapore' : 'Myanmar';
+          const state = country === 'Singapore' ? 'Singapore' : `${jobData.location} Region`;
+          
           const { data: newLocation, error: createLocationError } = await supabaseClient
             .from('locations')
             .insert([{ 
               city: jobData.location, 
               country: country,
-              state: country === 'Singapore' ? 'Singapore' : jobData.location + ' Region'
+              state: state
             }])
             .select('id')
             .single();
@@ -206,7 +328,8 @@ serve(async (req) => {
         success: true, 
         processed: processedJobs, 
         errors: errors,
-        message: `Successfully processed ${processedJobs} jobs with ${errors} errors`
+        scraped: allJobs.length,
+        message: `Successfully scraped ${allJobs.length} jobs and processed ${processedJobs} with ${errors} errors`
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

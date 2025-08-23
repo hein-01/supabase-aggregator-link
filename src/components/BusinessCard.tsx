@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, Phone, Globe, Clock } from "lucide-react";
+import { Star, MapPin, Phone, Globe, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface Business {
@@ -21,6 +21,7 @@ interface Business {
   owner_id: string;
   created_at: string;
   updated_at: string;
+  license_expired_date?: string;
 }
 
 interface BusinessCardProps {
@@ -41,6 +42,13 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
     ));
   };
 
+  const isLicenseValid = () => {
+    if (!business.license_expired_date) return false;
+    const expiryDate = new Date(business.license_expired_date);
+    const currentDate = new Date();
+    return expiryDate >= currentDate;
+  };
+
   return (
     <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
       {business.image_url && (
@@ -50,6 +58,11 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
             alt={business.name}
             className="w-[320px] h-[200px] object-cover rounded-t-lg"
           />
+          {isLicenseValid() && (
+            <div className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm rounded-full p-1">
+              <CheckCircle className="h-5 w-5 text-green-600 fill-green-100" />
+            </div>
+          )}
         </div>
       )}
       

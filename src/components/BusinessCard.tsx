@@ -44,8 +44,15 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
 
   const isLicenseValid = () => {
     if (!business.license_expired_date) return false;
+    
+    // Parse the date and compare only the date part (ignore time)
     const expiryDate = new Date(business.license_expired_date);
     const currentDate = new Date();
+    
+    // Set time to start of day for accurate date comparison
+    expiryDate.setHours(23, 59, 59, 999);
+    currentDate.setHours(0, 0, 0, 0);
+    
     return expiryDate >= currentDate;
   };
 

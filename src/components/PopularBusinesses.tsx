@@ -22,6 +22,7 @@ interface Business {
   product_images?: string[] | null;
   business_options?: string[] | null;
   starting_price?: string | null;
+  license_expired_date?: string | null;
 }
 
 const PopularBusinesses = () => {
@@ -74,6 +75,19 @@ const PopularBusinesses = () => {
       'border-red-600 text-red-600'
     ];
     return colors[index % colors.length];
+  };
+
+  const isLicenseValid = (licenseDate?: string | null) => {
+    if (!licenseDate) return false;
+    
+    const expiryDate = new Date(licenseDate);
+    const currentDate = new Date();
+    
+    // Set both dates to start of day for accurate date comparison
+    expiryDate.setHours(0, 0, 0, 0);
+    currentDate.setHours(0, 0, 0, 0);
+    
+    return expiryDate >= currentDate;
   };
 
   if (loading) {
@@ -170,7 +184,9 @@ const PopularBusinesses = () => {
                         alt="Business logo" 
                         className="w-10 h-10 rounded-md object-cover"
                       />
-                      <BadgeCheck className="w-4 h-4 text-white absolute -top-1 -right-1 rounded-full bg-primary" />
+                      {isLicenseValid(business.license_expired_date) && (
+                        <BadgeCheck className="w-4 h-4 text-white absolute -top-1 -right-1 rounded-full bg-primary" />
+                      )}
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-sm text-foreground leading-tight line-clamp-2">

@@ -43,13 +43,7 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
   };
 
   const isLicenseValid = () => {
-    console.log(`Business data for ${business.name}:`, business);
-    console.log(`License expired date:`, business.license_expired_date);
-    
-    if (!business.license_expired_date) {
-      console.log(`No license date found for ${business.name}`);
-      return false;
-    }
+    if (!business.license_expired_date) return false;
     
     // Create date objects for comparison (date only, no time)
     const expiryDate = new Date(business.license_expired_date);
@@ -59,13 +53,8 @@ export const BusinessCard = ({ business }: BusinessCardProps) => {
     expiryDate.setHours(0, 0, 0, 0);
     currentDate.setHours(0, 0, 0, 0);
     
-    console.log(`Expiry date (normalized): ${expiryDate}, Current date (normalized): ${currentDate}`);
-    
     // License is valid if expiry date is today or in the future
-    const isValid = expiryDate >= currentDate;
-    console.log(`License valid for ${business.name}: ${isValid}`);
-    
-    return isValid;
+    return expiryDate >= currentDate;
   };
 
   return (

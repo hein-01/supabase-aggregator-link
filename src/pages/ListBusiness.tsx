@@ -30,6 +30,7 @@ interface BusinessFormData {
   startingPrice: string;
   options: string[];
   productsCatalog: string;
+  onlineShopOption: string;
   paymentOption: string;
 }
 
@@ -79,6 +80,7 @@ export default function ListBusiness() {
     startingPrice: "",
     options: [],
     productsCatalog: "",
+    onlineShopOption: "maybe",
     paymentOption: "stripe"
   });
 
@@ -599,6 +601,32 @@ export default function ListBusiness() {
                     rows={4}
                   />
                 </div>
+              </div>
+
+              {/* Online Shop + POS Option */}
+              <div className="space-y-4">
+                <Label>Get Online Shop Website + POS as well?</Label>
+                <RadioGroup
+                  value={formData.onlineShopOption}
+                  onValueChange={(value) => handleInputChange('onlineShopOption', value)}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="sure" id="sure" />
+                    <Label htmlFor="sure">Sure</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="maybe" id="maybe" />
+                    <Label htmlFor="maybe">Maybe Later</Label>
+                  </div>
+                </RadioGroup>
+
+                {formData.onlineShopOption === 'sure' && (
+                  <div className="ml-6 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-sm text-green-800 font-medium">
+                      The total is 10 USD. You can choose the suitable payment options below.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Payment Options */}

@@ -10,8 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { Building2, Upload, Calendar, MapPin, Phone, Globe, Facebook, Music, DollarSign, Package, Camera } from "lucide-react";
+import { Building2, Upload, Calendar, MapPin, Phone, Globe, Facebook, Music, DollarSign, Package, Camera, CreditCard } from "lucide-react";
 
 interface BusinessFormData {
   name: string;
@@ -29,6 +30,7 @@ interface BusinessFormData {
   startingPrice: string;
   options: string[];
   productsCatalog: string;
+  paymentOption: string;
 }
 
 const BUSINESS_OPTIONS = [
@@ -59,6 +61,7 @@ export default function ListBusiness() {
   const [loading, setLoading] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [productImages, setProductImages] = useState<File[]>([]);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
   
   const [formData, setFormData] = useState<BusinessFormData>({
     name: "",
@@ -75,7 +78,8 @@ export default function ListBusiness() {
     tiktokUrl: "",
     startingPrice: "",
     options: [],
-    productsCatalog: ""
+    productsCatalog: "",
+    paymentOption: "stripe"
   });
 
   const handleInputChange = (field: keyof BusinessFormData, value: string) => {
@@ -101,6 +105,12 @@ export default function ListBusiness() {
     if (e.target.files) {
       const files = Array.from(e.target.files).slice(0, 3); // Max 3 images
       setProductImages(files);
+    }
+  };
+
+  const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setReceiptFile(e.target.files[0]);
     }
   };
 
@@ -139,6 +149,7 @@ export default function ListBusiness() {
     try {
       let logoUrl = "";
       let imageUrls: string[] = [];
+      let receiptUrl = "";
 
       // Upload logo if provided
       if (logoFile) {
@@ -153,6 +164,12 @@ export default function ListBusiness() {
           return uploadFile(file, 'business-assets', imagePath);
         });
         imageUrls = await Promise.all(uploadPromises);
+      }
+
+      // Upload receipt if bank payment option is selected
+      if (formData.paymentOption === 'bank' && receiptFile) {
+        const receiptPath = `receipts/${user.id}/${Date.now()}_${receiptFile.name}`;
+        receiptUrl = await uploadFile(receiptFile, 'business-assets', receiptPath);
       }
 
       // Create business listing
@@ -500,17 +517,56 @@ export default function ListBusiness() {
                 </div>
               </div>
 
-              <div className="flex gap-4 pt-6">
-                <Button type="submit" disabled={loading} className="flex-1">
-                  {loading ? "Listing Business..." : "List My Business"}
-                </Button>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => navigate('/')}
-                  className="flex-1"
+              {/* Payment Options */}
+              <div className="space-y-4">
+                <Label className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4" />
+                  Payment Options *
+                </Label>
+                <RadioGroup
+                  value={formData.paymentOption}
+                  onValueChange={(value) => handleInputChange('paymentOption', value)}
                 >
-                  Cancel
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="stripe" id="stripe" />
+                    <Label htmlFor="stripe">Stripe</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="bank" id="bank" />
+                    <Label htmlFor="bank">Bank/Digital Payments</Label>
+                  </div>
+                </RadioGroup>
+
+                {formData.paymentOption === 'bank' && (
+                  <div className="space-y-4 ml-6 p-4 bg-muted/50 rounded-lg">
+                    <p className="text-sm text-muted-foreground">
+                      Please make payment to Bank ABC 1234567, or True Money 610123456
+                    </p>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="receipt">Upload your receipt *</Label>
+                      <div className="flex items-center gap-4">
+                        <Upload className="h-5 w-5 text-muted-foreground" />
+                        <Input
+                          id="receipt"
+                          type="file"
+                          accept="image/*,.pdf"
+                          onChange={handleReceiptChange}
+                          className="flex-1"
+                          required={formData.paymentOption === 'bank'}
+                        />
+                      </div>
+                      {receiptFile && (
+                        <p className="text-sm text-muted-foreground">Selected: {receiptFile.name}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-center pt-6">
+                <Button type="submit" disabled={loading} className="w-full max-w-md">
+                  {loading ? "Listing Business..." : "List My Business"}
                 </Button>
               </div>
             </form>

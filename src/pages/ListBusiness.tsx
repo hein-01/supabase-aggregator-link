@@ -309,39 +309,71 @@ export default function ListBusiness() {
               {/* Logo Upload */}
               <div className="space-y-2">
                 <Label htmlFor="logo">Business Logo</Label>
-                <div className="flex items-center gap-4">
-                  <Upload className="h-5 w-5 text-muted-foreground" />
-                  <Input
+                <div className="relative">
+                  <input
                     id="logo"
                     type="file"
                     accept="image/*"
                     onChange={handleLogoChange}
-                    className="flex-1"
+                    className="sr-only"
                   />
+                  <label
+                    htmlFor="logo"
+                    className="flex items-center justify-center gap-3 w-full p-6 border-2 border-dashed border-primary/30 rounded-lg bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-all duration-200 cursor-pointer group"
+                  >
+                    <Upload className="h-6 w-6 text-primary group-hover:text-primary/80 transition-colors" />
+                    <div className="text-center">
+                      <p className="text-sm font-medium text-primary group-hover:text-primary/80">
+                        Choose Logo File
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        PNG, JPG up to 10MB
+                      </p>
+                    </div>
+                  </label>
                 </div>
                 {logoFile && (
-                  <p className="text-sm text-muted-foreground">Selected: {logoFile.name}</p>
+                  <div className="flex items-center gap-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <p className="text-sm text-green-700">Selected: {logoFile.name}</p>
+                  </div>
                 )}
               </div>
 
               {/* Product Images */}
               <div className="space-y-2">
                 <Label htmlFor="productImages">Product Images (Max 3)</Label>
-                <div className="flex items-center gap-4">
-                  <Camera className="h-5 w-5 text-muted-foreground" />
-                  <Input
+                <div className="relative">
+                  <input
                     id="productImages"
                     type="file"
                     accept="image/*"
                     multiple
                     onChange={handleProductImagesChange}
-                    className="flex-1"
+                    className="sr-only"
                   />
+                  <label
+                    htmlFor="productImages"
+                    className="flex items-center justify-center gap-3 w-full p-6 border-2 border-dashed border-blue-300 rounded-lg bg-blue-50 hover:bg-blue-100 hover:border-blue-400 transition-all duration-200 cursor-pointer group"
+                  >
+                    <Camera className="h-6 w-6 text-blue-600 group-hover:text-blue-700 transition-colors" />
+                    <div className="text-center">
+                      <p className="text-sm font-medium text-blue-700 group-hover:text-blue-800">
+                        Choose Product Images
+                      </p>
+                      <p className="text-xs text-blue-600 mt-1">
+                        Select up to 3 images (PNG, JPG)
+                      </p>
+                    </div>
+                  </label>
                 </div>
                 {productImages.length > 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    Selected: {productImages.length} image(s)
-                  </p>
+                  <div className="flex items-center gap-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <p className="text-sm text-green-700">
+                      Selected: {productImages.length} image(s)
+                    </p>
+                  </div>
                 )}
               </div>
 
@@ -545,19 +577,35 @@ export default function ListBusiness() {
                     
                     <div className="space-y-2">
                       <Label htmlFor="receipt">Upload your receipt *</Label>
-                      <div className="flex items-center gap-4">
-                        <Upload className="h-5 w-5 text-muted-foreground" />
-                        <Input
+                      <div className="relative">
+                        <input
                           id="receipt"
                           type="file"
                           accept="image/*,.pdf"
                           onChange={handleReceiptChange}
-                          className="flex-1"
+                          className="sr-only"
                           required={formData.paymentOption === 'bank'}
                         />
+                        <label
+                          htmlFor="receipt"
+                          className="flex items-center justify-center gap-3 w-full p-4 border-2 border-dashed border-orange-300 rounded-lg bg-orange-50 hover:bg-orange-100 hover:border-orange-400 transition-all duration-200 cursor-pointer group"
+                        >
+                          <Upload className="h-5 w-5 text-orange-600 group-hover:text-orange-700 transition-colors" />
+                          <div className="text-center">
+                            <p className="text-sm font-medium text-orange-700 group-hover:text-orange-800">
+                              Choose Receipt File
+                            </p>
+                            <p className="text-xs text-orange-600 mt-1">
+                              PNG, JPG, or PDF
+                            </p>
+                          </div>
+                        </label>
                       </div>
                       {receiptFile && (
-                        <p className="text-sm text-muted-foreground">Selected: {receiptFile.name}</p>
+                        <div className="flex items-center gap-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <p className="text-sm text-green-700">Selected: {receiptFile.name}</p>
+                        </div>
                       )}
                     </div>
                   </div>

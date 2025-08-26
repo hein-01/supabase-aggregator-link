@@ -97,20 +97,72 @@ export default function ListBusiness() {
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setLogoFile(e.target.files[0]);
+      const file = e.target.files[0];
+      const maxSize = 1 * 1024 * 1024; // 1MB in bytes
+      
+      if (file.size > maxSize) {
+        toast({
+          title: "File Too Large",
+          description: "Logo file must be smaller than 1MB. Please choose a smaller file.",
+          variant: "destructive",
+        });
+        e.target.value = ''; // Clear the input
+        return;
+      }
+      
+      setLogoFile(file);
     }
   };
 
   const handleProductImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const files = Array.from(e.target.files).slice(0, 3); // Max 3 images
+      const files = Array.from(e.target.files);
+      const maxSize = 3 * 1024 * 1024; // 3MB in bytes
+      const maxFiles = 3;
+      
+      // Check file count
+      if (files.length > maxFiles) {
+        toast({
+          title: "Too Many Files",
+          description: `You can only select up to ${maxFiles} images.`,
+          variant: "destructive",
+        });
+        e.target.value = ''; // Clear the input
+        return;
+      }
+      
+      // Check file sizes
+      const oversizedFiles = files.filter(file => file.size > maxSize);
+      if (oversizedFiles.length > 0) {
+        toast({
+          title: "Files Too Large",
+          description: `Each product image must be smaller than 3MB. ${oversizedFiles.length} file(s) exceed this limit.`,
+          variant: "destructive",
+        });
+        e.target.value = ''; // Clear the input
+        return;
+      }
+      
       setProductImages(files);
     }
   };
 
   const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setReceiptFile(e.target.files[0]);
+      const file = e.target.files[0];
+      const maxSize = 1 * 1024 * 1024; // 1MB in bytes
+      
+      if (file.size > maxSize) {
+        toast({
+          title: "File Too Large",
+          description: "Receipt file must be smaller than 1MB. Please choose a smaller file.",
+          variant: "destructive",
+        });
+        e.target.value = ''; // Clear the input
+        return;
+      }
+      
+      setReceiptFile(file);
     }
   };
 
@@ -327,7 +379,7 @@ export default function ListBusiness() {
                         Choose Logo File
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        PNG, JPG up to 10MB
+                        PNG, JPG up to 1MB
                       </p>
                     </div>
                   </label>
@@ -362,7 +414,7 @@ export default function ListBusiness() {
                         Choose Product Images
                       </p>
                       <p className="text-xs text-blue-600 mt-1">
-                        Select up to 3 images (PNG, JPG)
+                        Select up to 3 images (PNG, JPG, max 3MB each)
                       </p>
                     </div>
                   </label>
@@ -596,7 +648,7 @@ export default function ListBusiness() {
                               Choose Receipt File
                             </p>
                             <p className="text-xs text-orange-600 mt-1">
-                              PNG, JPG, or PDF
+                              PNG, JPG, or PDF (max 1MB)
                             </p>
                           </div>
                         </label>
